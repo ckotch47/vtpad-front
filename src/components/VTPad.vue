@@ -5,6 +5,7 @@
         <label>
           <textarea
               type='text'
+              class="materialize-textarea"
               v-model='newItem'
               @keydown.alt.enter="addItem($event)"
           />
@@ -19,6 +20,7 @@
                 :value='item.text'
                 :ref="'textarea_'+item.id"
                 :id="item.id"
+                class="materialize-textarea"
                 @focusout="saveItem($event)"
                 @keydown.ctrl.enter="addSubItem($event)"
                 @keydown.alt.enter="addItem($event)"
@@ -105,41 +107,14 @@ name: "VTPad",
       if(indexElement === -1) return undefined;
       const temp = (await axios.post(`/subitems/${id}`, {text: ''})).data
       this.items[indexElement].subItem.push(temp);
-    }
+    },
   }
 };
 
 </script>
 <style>
-  #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-  }
-  textarea {
-    height: 26px;
-    resize: none;
-    border: none;
-    width: 75vw;
-    box-shadow: 3px 6px 10px 0px #719ece;
-  }
-  textarea:focus {
-    outline: none !important;
-    border: none;
-    box-shadow: 3px 6px 10px 5px #719ece;
-  }
-  .main_header {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: flex-start;
-    margin-left: 15px;
-  }
-  .vtpad{
-    margin-top: 15px;
-    text-align: start;
-    margin-left: 15px;
-  }
+.sub{
+  margin-left: 3vw;
+}
 
 </style>

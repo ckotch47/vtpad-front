@@ -3,6 +3,7 @@
       <label v-for='elem in items' :key='elem.id'>
                 <textarea
                     type='text'
+                    class="materialize-textarea"
                     :value='elem.text'
                     :ref="'textarea_sub_'+elem.id"
                     :id="elem.id"
@@ -67,10 +68,5 @@ export default
 </script>
 
 <style scoped>
-.sub {
-  margin-left: 2vw;
-}
-.sub textarea{
-  width: 73vw;
-}
+
 </style>
