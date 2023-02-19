@@ -1,23 +1,41 @@
 <template>
-  <div class="collection" >
 
-    <router-link
+  <ul id="slide-out" :class="!showSideBar?'sidenav active':'sidenav active'">
+<!--    <a href="#" @click="showSideBar=!showSideBar"><i class="material-icons">menu</i></a>-->
+    <li>
+      <div class="user-view">
+<!--        <div class="background">-->
+<!--          <img >-->
+<!--        </div>-->
+        <a href="/settings/profile"><img class="circle" :src="`${userAvatar}`"></a>
+        <a><span class="black-text name">{{this.user.username ? this.user.username : 'username'}}</span></a>
+        <a><span class="black-text email">{{this.user.mail}}</span></a>
+      </div>
+    </li>
+    <li><div class="divider"></div></li>
+    <li><a class="subheader">Spaces</a></li>
+    <li
         v-for="space in spaces" :key="space.id"
-        :to="space.edit? `` : `/pad/${space.id}`"
+        :to="space.edit? `` : `/space/${space.id}`"
         @contextmenu="onContextMenu($event)"
         class="collection-item"
-        @click="clickSpace($event)"
-        >
-      <span class="space_item__name" v-if="!space.edit" >{{space.name}}</span>
-      <label v-if="space.edit">
-        <input
-          :value="space.name"
-          @keydown.enter="saveSpace($event)"
-          @focusout="saveSpace($event)"
-      />
-      </label>
-    </router-link>
-  </div>
+        :class="spaceId === space.id ? 'active' :''"
+        @click="clickSpace($event)">
+        <a class="waves-effect" :href="`/space/${space.id}`">
+          {{space.name}}
+        </a>
+    </li>
+    <li v-if="spaces.length === 0"
+        @contextmenu="onContextMenu($event)"
+        class="collection-item">
+      <a class="waves-effect" >
+        Please create space
+      </a>
+    </li>
+  </ul>
+
+
+
   <context-menu
       v-model:show="show"
       :options="optionsComponent"
@@ -27,20 +45,14 @@
         <i class="material-icons">add</i> <span >New Space</span>
       </div>
     </context-menu-item>
-
     <context-menu-item>
-      <div class="menu_item" @click="renameSpace">
-        <i class="material-icons">mode_edit</i> <span>Rename Space</span>
+      <div class="menu_item" @click="getSettings">
+        <i class="material-icons">settings</i> <span>Settings</span>
       </div>
     </context-menu-item>
-
-    <context-menu-item>
-      <div class="menu_item" @click="deleteSpace">
-        <i class="material-icons">delete</i> <span>Delete Space</span>
-      </div>
-    </context-menu-item>
-
   </context-menu>
+
+
 </template>
 
 <script>
@@ -50,6 +62,14 @@ export default {
   name: "SpaceComponent",
   data(){
     return{
+      showSideBar: false,
+      user: {
+        id: '',
+        name: 'John Dou',
+        mail: '',
+        avatar_id: ''
+      },
+      userAvatar: '',
       spaces: [{
         id: '',
         name: '',
@@ -60,19 +80,32 @@ export default {
       optionsComponent: {
         iconFontClass: 'iconfont',
         customClass: "class-a",
-        zIndex: 3,
+        zIndex: 9999,
         minWidth: 230,
         x: 500,
         y: 200
       },
       activeId: '',
+      spaceId: '',
     }
   },
-
+  // watch:{
+  //   '$route.params': {
+  //     immediate: true,
+  //     handler() {
+  //       this.spaceId = this.$route.params.spaceId;
+  //     },
+  //   },
+  // },
   async mounted(){
     this.spaces =  (await axios.get('/space')).data;
+    this.user = (await axios.get('/user')).data
+    if(this.user.avatar_id){
+      this.userAvatar = process.env.VUE_APP_URL_BACKEND + '/' +(await axios.get(`/file/${this.user.avatar_id}`)).data.filepath
+    }
   },
   methods: {
+
     async createSpace(){
       const temp = (await axios.post('/space', {
         name: 'new space'
@@ -104,7 +137,11 @@ export default {
       this.spaces.splice(index, 1);
       this.activeId = '';
     },
-
+    async getSettings(){
+      // const index = this.spaces.findIndex(value => value.id === this.activeId);
+      // this.$router.push(`/settings/space/${this.activeId}`)
+      location.href = `/settings/space/${this.activeId}`
+    },
     async renameSpace(){
       const index = this.spaces.findIndex(value => value.id === this.activeId);
       this.spaces[index].edit = true;
@@ -116,9 +153,18 @@ export default {
       if(this.activeId !== '') {
         index = this.spaces.findIndex(value => value.id === this.activeId);
         this.spaces[index].edit = false;
-        this.activeId = '';
+        try {
+          this.activeId = e.target.href.split('/').at(-1);
+        } catch {
+          this.activeId = ''
+        }
       }else {
-        this.activeId = e.target.href.split('/').at(-1);
+        try {
+          this.activeId = e.target.href.split('/').at(-1);
+        } catch {
+          this.activeId = ''
+        }
+
       }
       //Set the mouse position
       this.optionsComponent.x = e.x;
@@ -128,12 +174,13 @@ export default {
     },
 
   },
-
 }
 </script>
 
 <style scoped>
-
+.sidenav.active{
+  transform: translateX(0%)
+}
 
 </style>
 

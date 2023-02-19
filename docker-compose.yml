@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+
+  client:
+    container_name: vtpad
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - '.:/src'
+      - '/src/node_modules'
+    ports:
+      - '8081:8080'

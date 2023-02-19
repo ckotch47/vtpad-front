@@ -9,11 +9,16 @@
   },
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.1.10",
+    "@tiptap/pm": "^2.0.0-beta.217",
+    "@tiptap/starter-kit": "^2.0.0-beta.217",
+    "@tiptap/vue-3": "^2.0.0-beta.217",
     "axios": "^1.2.2",
     "core-js": "^3.8.3",
     "materialize-css": "^1.0.0-rc.2",
+    "usemodal-vue3": "^0.3.7",
     "vue": "^3.2.13",
     "vue-final-modal": "^3.4.11",
+    "vue-mobile-detection": "^2.0.1",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
@@ -23,7 +28,8 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3"
+    "eslint-plugin-vue": "^8.0.3",
+    "vuex": "^4.1.0"
   },
   "eslintConfig": {
     "root": true,

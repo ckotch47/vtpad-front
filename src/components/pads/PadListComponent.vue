@@ -9,7 +9,8 @@
     </a>
     <router-link
         v-for="pad in pads" :key="pad.id"
-        :to="pad.edit? `` : `/pad/${spaceId}/items/${pad.id}`"
+        :to="pad.edit? `` : `/pad/${pad.id}`"
+        :ref="`pad_${pad.id}`"
         class="collection-item"
         @contextmenu="onContextMenu($event)"
     >
@@ -17,6 +18,7 @@
       <label v-if="pad.edit">
         <input
             :value="pad.name"
+            :ref="`pad_input_${pad.id}`"
             @keydown.enter="updatePad($event)"
             @focusout="updatePad($event)"
         />
@@ -35,6 +37,18 @@
     </context-menu-item>
 
     <context-menu-item>
+      <div class="menu_item" @click="UpPad">
+        <i class="material-icons">arrow_upward</i> <span>Up Pad</span>
+      </div>
+    </context-menu-item>
+
+    <context-menu-item>
+      <div class="menu_item" @click="DownPad">
+        <i class="material-icons">arrow_downward</i> <span>Down Pad</span>
+      </div>
+    </context-menu-item>
+
+    <context-menu-item>
       <div class="menu_item" @click="renamePad">
         <i class="material-icons">mode_edit</i> <span>Rename Pad</span>
       </div>
@@ -46,15 +60,13 @@
       </div>
     </context-menu-item>
   </context-menu>
-
 </template>
 
 <script>
 import axios from "axios";
 
 export default {
-
-name: "PadComponent",
+  name: "PadListComponent",
   data(){
     return{
       spaceId: '',
@@ -85,6 +97,28 @@ name: "PadComponent",
 
   },
   methods: {
+    async UpPad(){
+      const index =  this.pads.findIndex(value => value.id === this.activeId);
+      const prevIndex = index - 1;
+      if(index === 0) return;
+
+      const temp = (await axios.patch(`/pad/${this.activeId}`, {
+        sortBeforeId: this.pads[prevIndex].id
+      }))
+      if(temp.status === 200)
+        this.pads = temp.data
+    },
+    async DownPad(){
+      const index =  this.pads.findIndex(value => value.id === this.activeId);
+      const prevIndex = index + 1;
+      if(index === this.pads.length-1) return;
+
+      const temp = (await axios.patch(`/pad/${this.activeId}`, {
+        sortAfterId: this.pads[prevIndex].id
+      }))
+      if(temp.status === 200)
+        this.pads = temp.data
+    },
     goToThing(e){
       e.stop();
       e.preventDefault();
@@ -100,7 +134,7 @@ name: "PadComponent",
       if(this.activeId !== ''){
         const index = this.pads.findIndex(value => value.id === this.activeId);
         this.pads[index].edit = false;
-        this.activeId = '';
+        this.activeId = e.target.href.split('/').at(-1);
       }else {
         this.activeId = e.target.href.split('/').at(-1);
       }
